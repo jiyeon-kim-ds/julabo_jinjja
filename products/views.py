@@ -24,7 +24,6 @@ class ProductDetailView(View):
                         image.image_url.split('/')[-1].split('.')[0] 
                     for image in Image.objects.filter(product_id=product.id)
                     ],
-                    'mls'                : product.
                 } for product in products
             ]
             return JsonResponse({'products': results}, status=200)
