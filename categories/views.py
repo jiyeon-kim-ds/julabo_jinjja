@@ -20,26 +20,33 @@ class CategoryView(View):
 
       return JsonResponse({'message': result}, status=200)
     except:
-      return JsonResponse({'message': 'INVALID_ERROR'}, status=400)
+      return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
 class SubCategoryView(View):
   def get(self,request, category_id,subcategory_id):
     try:
+      if not CategoryJoin.objects.filter(category_id = category_id, subcategory_id = subcategory_id).exists():
+        return JsonResponse({'message':'INVALID_CATEGORY'}, status=400)
+
       result = []
       categoryjoin = CategoryJoin.objects.filter(category_id = category_id, subcategory_id = subcategory_id)[0].product_set.all()
 
       for i in categoryjoin:
         result.append({
-          'name': i.name,
-          'ml'  : i.ml,
-          'price': i.price,
+          'name'        : i.name,
+          'ml'          : i.ml,
+          'price'       : i.price,
           'categoryjoin': SubCategory.objects.get(id = i.categoryjoin.subcategory_id).name,
         })
         
 #name , ml , categoryjoin, price
       return JsonResponse({'message': result}, status= 200)
     except:
-      return JsonResponse({'message': 'INVALID_ERROR'}, status=400) 
+      return JsonResponse({'message': 'KEY_ERROR'}, status=400) 
+
+class TypeView(View):
+  def get(self,request):
+    return JsonResponse({'message':'SUCCESS'}, status=200)
 
 # class CsvView(View):
 #   def get(self,request):
