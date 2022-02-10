@@ -5,4 +5,4 @@ from products.views import ProductDetailView
 urlpatterns = [
     path('products', ProductDetailView.as_view()),
     path('', include('categories.urls')),
-]gf
+]g
