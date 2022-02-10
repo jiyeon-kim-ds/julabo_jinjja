@@ -1,20 +1,25 @@
-from django.db import models
+from django.db    import models
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        db_table = 'categories'
+        db_table='categories'
 
-class SubCategory(models.Model):
+class Subcategory(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        db_table = 'subcategories'
+        db_table='subcategories'
 
-class CategoryJoin(models.Model):
-    category     = models.ForeignKey(Category, on_delete=models.CASCADE)
-    subcategory  = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+class CategorySubcategory(models.Model):
+    category = models.ForeignKey('category', on_delete=models.CASCADE)
+    subcategory = models.ForeignKey('subcategory',on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'categoryjoins'
+        db_table='categorysubcategories'
+
+
+        
+
