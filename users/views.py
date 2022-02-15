@@ -1,12 +1,10 @@
-from statistics import multimode
-from xmlrpc.client import MultiCall
-from django.http import JsonResponse
-from django.core.exceptions import ValidationError 
-from django.views import View
-from django.shortcuts import render , redirect
-from users.decorator import login_decorator
-from users.models import User
-from my_settings  import SECRET_KEY,ALGORITHM
+import re ,json ,jwt ,bcrypt
+
+from django.http            import JsonResponse 
+from django.views           import View
+
+from users.models           import User
+from django.conf            import settings 
 
 REGEX_EMAIL = "^[a-zA-Z0-9._+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+$"
 REGEX_PASSWORD = "^(?=.{8,16}$)(?=.*[a-z])(?=.*[0-9]).*$"
@@ -42,54 +40,24 @@ class SignUpView(View):
             return JsonResponse({'message':'SUCCESS'},status=200)
     
         except KeyError:
-            return JsonResponse({"message" : "KEY_ERROR"}, status=401)
+            return JsonResponse({"message" : "KEY_ERROR"}, status=400)
 
 class LogInView(View):
-    @login_decorator
-    def post(self,request):
-        data = json.loads(request.body) 
+    def post(self,request): 
         try: 
-            if not User.objects.filter(
-                email           = data['email'],
-                password        = data['password'],
-                ).exists():
-                return JsonResponse({"message": "INVALID_USER"}, status=401)
-
-            if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                token = jwt.encode({'id': user.id}, SECRET_KEY, algorithm=ALGORITHM)
-                return JsonResponse({'token':token}, status=200)
-
-                #return redirect('loginpage')??   
+            data  = json.loads(request.body) 
+            user  = User.objects.get(email=data['email'])
+                
+            if bcrypt.checkpw(data['password'].encode('utf-8'), User.password.encode('utf-8')):
+               
+               token = jwt.encode({'id': User.id}, settings.SECRET_KEY, settings.ALGORITHM)
+               return JsonResponse({'token':token}, status=200)  
             
         except KeyError:
-            
-            return render(request, '#로그인페이지???', data)
+            return JsonResponse({"message": "KEY_ERROR"},status=400)
 
-class CartView(View):
-    @login_decorator
-    def post(self,request):
-        try:
-            data       = json.loads(request.body)
-            user_id    = request.user
-            product_id = data['product_id']
-            quantity   = data['quantity']
+
+
+
         
-            if not Product.objects.filter(id=product_id).exists():
-                return JsonResponse({'message':'PRODUCT_NOT_EXIST'}, status=400)
-
-            if not Option.objects.filter(id=product_id).exists():
-                return JsonResponse({'message'})
-
-            if quantity <= 0:
-                return JsonResponse({'message':'QUANTITY_ERROR'}),
-
-        except:
-            
-
-#class Cartlog(View):     
-    #@login_decorator
-    #def get(self,request):
-        #user = request.user
-
-        #if not Cart.objects.filter(user=user).exists():
-            #return JsonResponse({'message':'CART_NOT_EXIST'}, status=400)
+        
